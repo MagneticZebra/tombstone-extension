@@ -1,0 +1,344 @@
+@font-face {
+  font-family: 'VT323';
+  src: url('fonts/vt323.woff2') format('woff2');
+  font-display: block;
+}
+
+:root {
+  color-scheme: dark;
+  --sky-high: #0b1026;
+  --sky-mid: #111838;
+  --sky-low: #1a2350;
+  --night: #05070f;
+  --moon: #f2e9c9;
+  --dusk: #8d93b8;
+  --ground: #16281f;
+  --ground-edge: #0c1712;
+  --ink: #171a2b;
+  --grass: #2f5a3a;
+  --grass-lit: #4b8b4f;
+  --moss: #3f7a34;
+  --moss-lit: #72ad4a;
+}
+
+html {
+  background: var(--ground);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: clip;
+  color: var(--moon);
+  font:
+    16px/1 'VT323',
+    ui-monospace,
+    'SF Mono',
+    Menlo,
+    Consolas,
+    monospace;
+  -webkit-font-smoothing: none;
+}
+
+.sky {
+  position: relative;
+  flex: none;
+  height: 320px;
+  overflow: hidden;
+  background:
+    var(--art-stars) repeat,
+    linear-gradient(to bottom, var(--sky-high) 0 40%, var(--sky-mid) 40% 72%, var(--sky-low) 72% 100%);
+}
+
+.sky > div {
+  position: absolute;
+  bottom: 0;
+  background-position: left bottom;
+  background-repeat: no-repeat;
+}
+
+.sky > .moon {
+  top: 48px;
+  right: 14%;
+  width: 56px;
+  height: 56px;
+  background-image: var(--art-moon);
+}
+
+.sky > .hills {
+  right: 0;
+  left: 0;
+  height: 88px;
+  background-image: var(--art-hills);
+  background-repeat: repeat-x;
+}
+
+.sky > .tree {
+  left: 6%;
+  width: 176px;
+  height: 208px;
+  background-image: var(--art-tree);
+}
+
+.sky > .fence {
+  right: 0;
+  left: 0;
+  height: 56px;
+  background-image: var(--art-fence);
+  background-repeat: repeat-x;
+}
+
+h1 {
+  position: absolute;
+  top: 72px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  font-size: 64px;
+  font-weight: 400;
+  letter-spacing: 4px;
+  text-align: center;
+  text-shadow: 4px 4px 0 var(--night);
+}
+
+.yard {
+  position: relative;
+  flex: 1;
+  padding: 56px 32px 96px;
+  border-top: 4px solid var(--ground-edge);
+  background:
+    var(--art-grass) repeat,
+    var(--ground);
+}
+
+.quiet {
+  margin: 40px 0;
+  color: var(--dusk);
+  font-size: 32px;
+  text-align: center;
+}
+
+.plots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 160px);
+  gap: 48px 8px;
+  justify-content: center;
+  justify-items: center;
+}
+
+.stone {
+  --stone: #a3a9b8;
+  --stone-lit: #cfd4de;
+  --stone-shade: #777d90;
+  --dirt: #6b4a33;
+  --dirt-lit: #94694a;
+  --pebble: #4a3426;
+  position: relative;
+  width: 128px;
+  height: 152px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  appearance: none;
+}
+
+.stone[data-stage='weathered'] {
+  --stone: #81869a;
+  --stone-lit: #9ea3b3;
+  --stone-shade: #5d6276;
+  --dirt: #3d3a2a;
+  --dirt-lit: var(--grass);
+  --pebble: #2c2a1f;
+}
+
+.stone[data-stage='mossy'] {
+  --stone: #67716f;
+  --stone-lit: #7f8a86;
+  --stone-shade: #4a5454;
+  --dirt: #25432f;
+  --dirt-lit: var(--grass-lit);
+  --pebble: #1b3324;
+}
+
+.stone svg {
+  display: block;
+}
+
+.stone:hover,
+.stone:focus-visible {
+  z-index: 1;
+}
+
+.stone:hover svg,
+.stone:focus-visible svg {
+  filter: brightness(1.15);
+}
+
+.stone:focus-visible {
+  outline: 4px solid var(--moon);
+  outline-offset: 4px;
+}
+
+.p-i,
+.p-c {
+  fill: var(--ink);
+}
+
+.p-h {
+  fill: var(--stone-lit);
+}
+
+.p-m {
+  fill: var(--stone);
+}
+
+.p-l,
+.p-e,
+.p-s {
+  fill: var(--stone-shade);
+}
+
+.p-g {
+  fill: var(--moss);
+}
+
+.p-G {
+  fill: var(--moss-lit);
+}
+
+.p-d {
+  fill: var(--dirt);
+}
+
+.p-t {
+  fill: var(--dirt-lit);
+}
+
+.p-p {
+  fill: var(--pebble);
+}
+
+.p-u,
+.p-U {
+  fill: var(--grass-lit);
+}
+
+.wear,
+.moss,
+.p-u,
+.p-U {
+  display: none;
+}
+
+.stone[data-stage='weathered'] :is(.wear, .p-u),
+.stone[data-stage='mossy'] :is(.wear, .p-u, .p-U, .moss) {
+  display: inline;
+}
+
+/* Each patch carries the decay fraction it appears at. Opacity clamps the
+   product to 0 or 1, so a patch switches on whole and no pixel is blended. */
+.moss {
+  opacity: calc((var(--decay) - var(--at)) * 1000);
+}
+
+.face {
+  position: absolute;
+  top: 52px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 72px;
+  font-size: 20px;
+  line-height: 18px;
+}
+
+.title {
+  display: -webkit-box;
+  max-height: 72px;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  text-align: center;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.stone[data-stage='weathered'] .title {
+  opacity: 0.8;
+}
+
+.stone[data-stage='mossy'] .title {
+  opacity: calc(1.7 - var(--decay) * 1.5);
+}
+
+.epitaph {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  z-index: 2;
+  display: none;
+  width: max-content;
+  max-width: 280px;
+  padding: 12px 16px;
+  border: 4px solid var(--moon);
+  background: var(--night);
+  box-shadow: 4px 4px 0 var(--night);
+  color: var(--moon);
+  font-size: 20px;
+  line-height: 20px;
+  text-align: left;
+  transform: translateX(calc(-50% + var(--shift, 0px)));
+  pointer-events: none;
+}
+
+.epitaph.below {
+  top: calc(100% + 12px);
+  bottom: auto;
+}
+
+.epitaph span {
+  display: block;
+}
+
+.epitaph span + span {
+  margin-top: 8px;
+  color: var(--dusk);
+}
+
+.stone:hover .epitaph,
+.stone:focus-visible .epitaph {
+  display: block;
+}
+
+.ghost {
+  position: absolute;
+  width: 48px;
+  height: 56px;
+  margin-left: -24px;
+  background: var(--art-ghost);
+  pointer-events: none;
+  animation: rise var(--rise) steps(12) forwards;
+}
+
+@keyframes rise {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-96px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost {
+    display: none;
+  }
+}
